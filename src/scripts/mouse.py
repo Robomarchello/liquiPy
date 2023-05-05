@@ -13,7 +13,7 @@ class Mouse:
         else:
             pygame.mouse.set_cursor(SYSTEM_CURSOR_ARROW)
 
-        cls.resize = False
+        cls.hovered = False
 
     @classmethod
     def handle_event(cls, event):

@@ -1,7 +1,10 @@
+import asyncio
 import pygame
 from pygame.locals import *
 from pygame._sdl2.video import Window, Renderer
-import asyncio
+from src.scripts.parts import ToolBar
+from src.scripts.mouse import Mouse
+
 
 pygame.init()
 
@@ -9,13 +12,13 @@ pygame.init()
 class App():
     def __init__(self, ScreenSize, caption, fps):
         self.ScreenSize = ScreenSize
-        
-        #self.screen = pygame.display.set_mode(ScreenSize)
-        #pygame.display.set_caption(caption)
+
         self.window = Window(caption, ScreenSize)
         self.renderer = Renderer(self.window)
 
-        self.event_handlers = []
+        self.ToolBar = ToolBar(self.renderer)
+
+        self.event_handlers = [Mouse, self.ToolBar]
 
         self.clock = pygame.time.Clock()
         self.fps = fps
@@ -24,18 +27,25 @@ class App():
         renderer = self.renderer
         while True:
             self.clock.tick(self.fps)
+            
+            self.handle_events()
+            Mouse.update()
 
-            for event in pygame.event.get():
-                if event.type == QUIT:
-                    pygame.quit()
-                    raise SystemExit
-
-                            
             renderer.draw_color = (49, 51, 56, 255) # Set the draw color
             renderer.clear() # Fill the screen with the set draw color
             
-            #texture.draw_triangle((0, 500), mp, (500, 500), (0.0, 1.0), (0.5, 0.0), (1.0, 1.0))
+            self.ToolBar.draw(renderer)
             
             renderer.present() # Update the screen
 
             await asyncio.sleep(0)
+
+    def handle_events(self):
+        #event handling
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                raise SystemExit
+        
+            for event_handler in self.event_handlers:
+                event_handler.handle_event(event)
