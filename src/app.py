@@ -1,8 +1,8 @@
 import asyncio
 import pygame
 from pygame.locals import *
-from pygame._sdl2.video import Window, Renderer
-from src.scripts.parts import ToolBar
+from pygame._sdl2.video import Window, Renderer, Texture
+from src.scripts.parts import ToolBar, Editor
 from src.scripts.mouse import Mouse
 
 
@@ -16,7 +16,12 @@ class App():
         self.window = Window(caption, ScreenSize)
         self.renderer = Renderer(self.window)
 
+        self.dummy = Texture.from_surface(
+            self.renderer,
+            pygame.image.load('src/assets/dummy.png'))
+
         self.ToolBar = ToolBar(self.renderer)
+        self.Editor = Editor(self.dummy)
 
         self.event_handlers = [Mouse, self.ToolBar]
 
@@ -35,6 +40,7 @@ class App():
             renderer.clear() # Fill the screen with the set draw color
             
             self.ToolBar.draw(renderer)
+            self.Editor.draw(renderer)
             
             renderer.present() # Update the screen
 
