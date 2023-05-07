@@ -21,10 +21,13 @@ class Grid:
 
     def draw(self, renderer):
         renderer.draw_color = (255, 0, 0, 255)
-        for position in self.allPoses:
+        for position in self.mesh:
             renderer.draw_point(position)
 
     def update_mesh(self):
+        pass
+
+    def reset_mesh(self):
         pass
 
     def handle_event(self):

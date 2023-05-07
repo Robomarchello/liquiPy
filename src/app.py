@@ -21,9 +21,9 @@ class App():
             pygame.image.load('src/assets/dummy.png'))
 
         self.ToolBar = ToolBar(self.renderer)
-        self.Editor = Editor(self.dummy)
+        self.Editor = Editor(self.renderer, self.dummy)
 
-        self.event_handlers = [Mouse, self.ToolBar]
+        self.event_handlers = [Mouse, self.ToolBar, self.Editor]
 
         self.clock = pygame.time.Clock()
         self.fps = fps
@@ -39,8 +39,8 @@ class App():
             renderer.draw_color = (49, 51, 56, 255) # Set the draw color
             renderer.clear() # Fill the screen with the set draw color
             
-            self.ToolBar.draw(renderer)
             self.Editor.draw(renderer)
+            self.ToolBar.draw(renderer)
             
             renderer.present() # Update the screen
 
@@ -52,6 +52,9 @@ class App():
             if event.type == QUIT:
                 pygame.quit()
                 raise SystemExit
+            
+            if event.type == KEYDOWN:
+                print(self.clock.get_fps())
         
             for event_handler in self.event_handlers:
                 event_handler.handle_event(event)

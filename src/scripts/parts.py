@@ -1,8 +1,10 @@
 import pygame
 from pygame._sdl2.video import Texture
+from pygame.locals import MOUSEWHEEL
 from .ui import Button
 from .mouse import Mouse
 from .mesh import Grid
+from .tools import Tool, Smudge
 
 
 class ToolBar:
@@ -69,7 +71,7 @@ class ToolBar:
 
 
 class Editor:
-    def __init__(self, image=None):
+    def __init__(self, renderer, image=None):
         self.rect = pygame.Rect(0, 0, 960, 540)
         
         #pixels per cell 
@@ -86,9 +88,23 @@ class Editor:
 
         self.grid = Grid(self.imageRect, self.image, self.cells, self.pixelpc, self.rect)
 
-    def draw(self, renderer):
-        #if self.rect.collidepoint(Mouse.position):
-        #    Mouse.visible = False
+        self.minRadius = 16
+        self.tools = [
+            Smudge(renderer)
+        ]
+        self.toolIndex = 0
 
+    def draw(self, renderer):
         self.image.draw(dstrect=self.imageRect)
         self.grid.draw(renderer)
+
+        tool = self.tools[self.toolIndex]
+        tool.update(self.grid.mesh)
+        tool.draw(renderer)
+        tool.active = True
+
+    def handle_event(self, event):
+        if event.type == MOUSEWHEEL:
+            Tool.radius += event.y
+            if Tool.radius <= self.minRadius:
+                Tool.radius = self.minRadius
