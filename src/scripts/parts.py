@@ -101,10 +101,12 @@ class Editor:
         tool = self.tools[self.toolIndex]
         tool.update(self.grid.mesh)
         tool.draw(renderer)
-        tool.active = True
+        tool.selected = True
 
     def handle_event(self, event):
         if event.type == MOUSEWHEEL:
             Tool.radius += event.y
             if Tool.radius <= self.minRadius:
                 Tool.radius = self.minRadius
+
+        self.tools[self.toolIndex].handle_event(event)
