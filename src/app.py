@@ -20,8 +20,8 @@ class App():
             self.renderer,
             pygame.image.load('src/assets/dummy.png'))
 
-        self.ToolBar = ToolBar(self.renderer)
         self.Editor = Editor(self.renderer, self.dummy)
+        self.ToolBar = ToolBar(self.renderer, self.Editor.grid, self.Editor)
 
         self.event_handlers = [Mouse, self.ToolBar, self.Editor]
 

@@ -4,13 +4,16 @@ from pygame.locals import MOUSEWHEEL
 from .ui import Button
 from .mouse import Mouse
 from .mesh import Grid
-from .tools import Tool, Smudge
+from .tools import Tool, Smudge, Swirl
+from tkinter import Tk, filedialog
 
 
 class ToolBar:
-    def __init__(self, renderer):
+    def __init__(self, renderer, grid, editor):
         self.rect = pygame.Rect(0, 540, 960, 70)
         self.color = pygame.Color(35, 36, 40)
+
+        self.renderer = renderer
 
         self.text = Texture.from_surface(
             renderer,
@@ -18,18 +21,21 @@ class ToolBar:
         )
         self.textRect = self.text.get_rect(bottomright=(955, 605))
 
+        save = grid.save()
+        self.editor = editor
+
         self.buttons = []
         self.buttons.append(
             Button(
             Texture.from_surface(renderer,
                                 pygame.image.load('src/assets/SaveBtn.png')),
-            (10, 545), self.save)
+            (10, 545), save)
         )
         self.buttons.append(
             Button(
             Texture.from_surface(renderer,
                                 pygame.image.load('src/assets/UploadBtn.png')),
-            (130, 545), self.load)
+            (130, 545), self.openFile)
         )
         self.buttons.append(
             Button(
@@ -47,8 +53,18 @@ class ToolBar:
     def save(self):
         print('save')
         
-    def load(self):
-        print('load')
+    def openFile(self):
+        """Create a Tk file dialog and cleanup when finished"""
+        tk = Tk()
+        tk.withdraw() 
+        file_name = filedialog.askopenfilename(parent=tk)
+        tk.destroy()
+        
+        self.image = Texture.from_surface(self.renderer, file_name)
+        imageRect = self.image.get_rect()
+        imageRect = self.imageRect.fit(self.rect)
+
+        return file_name
 
     def smudge(self):
         print('smudge')
@@ -75,27 +91,21 @@ class Editor:
         self.rect = pygame.Rect(0, 0, 960, 540)
         
         #pixels per cell 
-        self.pixelpc = 30
+        self.pixelspc = 25
         
         self.image = image
-        self.imageRect = self.image.get_rect()
-        self.imageRect = self.imageRect.fit(self.rect)
 
-        self.cells = [
-            self.imageRect.width // self.pixelpc,
-            self.imageRect.height // self.pixelpc
-        ]
-
-        self.grid = Grid(self.imageRect, self.image, self.cells, self.pixelpc, self.rect)
+        self.grid = Grid(renderer, self.image, self.pixelspc, self.rect)
 
         self.minRadius = 16
         self.tools = [
-            Smudge(renderer)
+            Smudge(renderer),
+            Swirl(renderer)
         ]
-        self.toolIndex = 0
+        self.toolIndex = 1
 
     def draw(self, renderer):
-        self.image.draw(dstrect=self.imageRect)
+        #self.image.draw(dstrect=self.imageRect)
         self.grid.draw(renderer)
 
         tool = self.tools[self.toolIndex]
