@@ -7,10 +7,12 @@ import pygame
 class Grid:
     def __init__(self, renderer, image, pixelspc, bounds):
         self.renderer = renderer
+        self.image = image
+        self.pixelspc = pixelspc
+        self.bounds = bounds
 
         #pixels per cell
-        self.pixelspc = pixelspc
-
+        
         self.rect = image.get_rect().fit(self.bounds)
 
         self.cells = [
@@ -31,11 +33,7 @@ class Grid:
         )
 
         self.TriangleUV = numpy.subtract(self.mesh2d, self.rect.topleft)
-        self.TriangleUV = numpy.divide(self.TriangleUV, self.rect.size)
-
-        self.image = image
-
-        self.bounds = bounds
+        self.TriangleUV = numpy.divide(self.TriangleUV, self.rect.size)        
 
     def draw(self, renderer):
         renderer.draw_color = (255, 0, 0, 255)
