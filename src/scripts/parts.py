@@ -4,7 +4,7 @@ from pygame.locals import MOUSEWHEEL
 from .ui import Button
 from .mouse import Mouse
 from .mesh import Grid
-from .tools import Tool, Smudge, Swirl
+from .tools import Tool, Smudge, Swirl, Shrink
 from tkinter import Tk, filedialog
 
 
@@ -20,17 +20,19 @@ class ToolBar:
             pygame.image.load('src/assets/tooljam.png')
         )
         self.textRect = self.text.get_rect(bottomright=(955, 605))
-
-        save = grid.save()
+        
+        save = grid.save
+        self.grid = grid
         self.editor = editor
 
         self.buttons = []
+
         self.buttons.append(
             Button(
             Texture.from_surface(renderer,
                                 pygame.image.load('src/assets/SaveBtn.png')),
             (10, 545), save)
-        )
+        )        
         self.buttons.append(
             Button(
             Texture.from_surface(renderer,
@@ -40,19 +42,28 @@ class ToolBar:
         self.buttons.append(
             Button(
             Texture.from_surface(renderer,
+                                pygame.image.load('src/assets/RestartBtn.png')),
+            (250, 545), self.restart)
+        )
+        self.buttons.append(
+            Button(
+            Texture.from_surface(renderer,
                                 pygame.image.load('src/assets/SmudgeBtn.png')),
-            (250, 545), self.smudge)
+            (370, 545), self.smudge)
         )
         self.buttons.append(
             Button(
             Texture.from_surface(renderer,
                                 pygame.image.load('src/assets/SwirlBtn.png')),
-            (370, 545), self.swirl)
+            (490, 545), self.swirl)
         )
-    
-    def save(self):
-        print('save')
-        
+        self.buttons.append(
+            Button(
+            Texture.from_surface(renderer,
+                                pygame.image.load('src/assets/ShrinkBtn.png')),
+            (610, 545), self.shrink)
+        )
+
     def openFile(self):
         """Create a Tk file dialog and cleanup when finished"""
         tk = Tk()
@@ -60,17 +71,27 @@ class ToolBar:
         file_name = filedialog.askopenfilename(parent=tk)
         tk.destroy()
         
-        self.image = Texture.from_surface(self.renderer, file_name)
-        imageRect = self.image.get_rect()
-        imageRect = self.imageRect.fit(self.rect)
+        if file_name == '':
+            return
 
-        return file_name
+        self.image = Texture.from_surface(self.renderer, 
+                            pygame.image.load(file_name))
+        imageRect = self.image.get_rect()
+        imageRect = imageRect.fit(self.rect)
+
+        self.grid.update_image(self.image)
 
     def smudge(self):
-        print('smudge')
+        self.editor.toolIndex = 0
 
     def swirl(self):
-        print('swirl')
+        self.editor.toolIndex = 1
+    
+    def shrink(self):
+        self.editor.toolIndex = 2
+
+    def restart(self):
+        self.editor.grid.reset_mesh()
     
     def draw(self, renderer):
         renderer.draw_color = (35, 36, 40, 255)
@@ -100,9 +121,10 @@ class Editor:
         self.minRadius = 16
         self.tools = [
             Smudge(renderer),
-            Swirl(renderer)
+            Swirl(renderer),
+            Shrink(renderer)
         ]
-        self.toolIndex = 1
+        self.toolIndex = 2
 
     def draw(self, renderer):
         #self.image.draw(dstrect=self.imageRect)

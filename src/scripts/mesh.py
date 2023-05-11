@@ -38,6 +38,7 @@ class Grid:
     def draw(self, renderer):
         renderer.draw_color = (255, 0, 0, 255)
 
+        #print(self.mesh2d.shape,)
         for y, row in enumerate(self.mesh2d):
             for x, point in enumerate(row):
                 if x < self.cells[0] - 1:
@@ -61,7 +62,7 @@ class Grid:
                             triangleUV[0], triangleUV[1], triangleUV[2], triangleUV[3]
                             )
                         
-                renderer.draw_point(point)
+                #renderer.draw_point(point)
                         
 
     def save(self):
@@ -97,6 +98,7 @@ class Grid:
         pygame.image.save(surf, 'saved.png')
 
     def update_image(self, image):
+        self.image = image
         self.rect = image.get_rect().fit(self.bounds)
 
         self.cells = [
@@ -113,14 +115,32 @@ class Grid:
         self.mesh += self.rect.topleft
 
         self.mesh2d = self.mesh.reshape(
-            (self.cells[0], self.cells[1], 2)
+            (self.cells[1], self.cells[0], 2)
         )
 
         self.TriangleUV = numpy.subtract(self.mesh2d, self.rect.topleft)
-        self.TriangleUV = numpy.divide(self.TriangleUV, self.rect.size)
+        self.TriangleUV = numpy.divide(self.TriangleUV, self.rect.size)     
 
     def reset_mesh(self):
-        pass
+        self.cells = [
+            self.rect.width // self.pixelspc,
+            self.rect.height // self.pixelspc
+        ]
+
+        xPoses = numpy.linspace(0, self.rect.width, self.cells[0])
+        yPoses = numpy.linspace(0, self.rect.height, self.cells[1])
+
+        allX = numpy.tile(xPoses, self.cells[1])
+        allY = numpy.repeat(yPoses, self.cells[0])
+        self.mesh = numpy.vstack((allX, allY)).T
+        self.mesh += self.rect.topleft
+
+        self.mesh2d = self.mesh.reshape(
+            (self.cells[1], self.cells[0], 2)
+        )
+
+        self.TriangleUV = numpy.subtract(self.mesh2d, self.rect.topleft)
+        self.TriangleUV = numpy.divide(self.TriangleUV, self.rect.size)     
 
     def handle_event(self):
         pass
