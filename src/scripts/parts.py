@@ -1,11 +1,13 @@
 import pygame
 from pygame._sdl2.video import Texture
 from pygame.locals import MOUSEWHEEL
+from tkinter import filedialog
+from os import path
+import json
 from .ui import Button
 from .mouse import Mouse
 from .mesh import Grid
 from .tools import Tool, Smudge, Swirl, Shrink
-from tkinter import Tk, filedialog
 
 
 class ToolBar:
@@ -129,7 +131,8 @@ class Editor:
         self.rect = pygame.Rect(0, 0, 960, 540)
         
         #pixels per cell 
-        self.pixelspc = 25
+        self.pixelspc = 20 #default
+        self.pixelspc = self.get_settings()
         
         self.image = image
 
@@ -141,7 +144,7 @@ class Editor:
             Swirl(renderer),
             Shrink(renderer)
         ]
-        self.toolIndex = 2
+        self.toolIndex = 0
 
     def draw(self, renderer):
         #self.image.draw(dstrect=self.imageRect)
@@ -163,3 +166,20 @@ class Editor:
                 Tool.radius = self.minRadius
 
         self.tools[self.toolIndex].handle_event(event)
+
+        self.grid.handle_event(event)
+
+    def get_settings(self):
+        settings = {'PixelsPerPoint': self.pixelspc}
+
+        if path.isfile('settings.json'):
+            with open('settings.json', 'r') as config:
+                settings = json.load(config)
+                self.pixelspc = settings['PixelsPerPoint']
+        else:
+            with open('settings.json', 'w') as config:
+                json.dump(settings, config)
+
+        return self.pixelspc
+        
+        

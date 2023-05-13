@@ -33,7 +33,9 @@ class Grid:
         )
 
         self.TriangleUV = numpy.subtract(self.mesh2d, self.rect.topleft)
-        self.TriangleUV = numpy.divide(self.TriangleUV, self.rect.size)        
+        self.TriangleUV = numpy.divide(self.TriangleUV, self.rect.size)    
+
+        self.debug = False    
 
     def draw(self, renderer):
         renderer.draw_color = (255, 0, 0, 255)
@@ -60,8 +62,9 @@ class Grid:
                             triangle[0], triangle[1], triangle[2], triangle[3],
                             triangleUV[0], triangleUV[1], triangleUV[2], triangleUV[3]
                             )
-                        
-                #renderer.draw_point(point)
+                
+                if self.debug:       
+                    renderer.draw_point(point)
                         
 
     def save(self, path='saved.png'):
@@ -141,5 +144,10 @@ class Grid:
         self.TriangleUV = numpy.subtract(self.mesh2d, self.rect.topleft)
         self.TriangleUV = numpy.divide(self.TriangleUV, self.rect.size)     
 
-    def handle_event(self):
-        pass
+    def handle_event(self, event):
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_d:
+                if self.debug:
+                    self.debug = False
+                else:
+                    self.debug = True

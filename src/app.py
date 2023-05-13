@@ -54,7 +54,8 @@ class App():
                 raise SystemExit
             
             if event.type == KEYDOWN:
-                print(self.clock.get_fps())
+                if event.key == K_f:
+                    print(self.clock.get_fps())
         
             for event_handler in self.event_handlers:
                 event_handler.handle_event(event)
