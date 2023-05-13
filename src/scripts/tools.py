@@ -175,19 +175,21 @@ class Swirl(Tool):
     def __init__(self, renderer):
         super().__init__(renderer)
 
-        self.speed = -0.25
+        self.speed = 0.25
+        self.direction = -1
 
     def update(self, mesh):
         self.update_cursor()
         if self.selected:
             collisions = self.get_colliding(mesh)
+            speed = self.speed * self.direction
 
             if self.holding:
                 for index, position in enumerate(collisions[0]):                    
                     diff = Vector2(
                         -(self.position[1] - position[1]),
                         (self.position[0] - position[0])
-                    ).normalize() * self.speed
+                    ).normalize() * speed
 
                     position += diff 
                         
@@ -211,12 +213,14 @@ class Swirl(Tool):
         if event.type == MOUSEBUTTONDOWN:
             if event.button == 1:
                 self.holding = True
+                self.direction = 1
             
-            if event.button == 3:
-                self.speed *= -1
+            if event.button == 3:               
+                self.holding = True
+                self.direction = -1
                 
         if event.type == MOUSEBUTTONUP:
-            if event.button == 1:
+            if event.button == 1 or event.button == 3:
                 self.holding = False
 
 
@@ -225,18 +229,20 @@ class Shrink(Tool):
         super().__init__(renderer)
 
         self.speed = 0.25
+        self.direction = 1
 
     def update(self, mesh):
         self.update_cursor()
         if self.selected:
             collisions = self.get_colliding(mesh)
+            speed = self.speed * self.direction
 
             if self.holding:
                 for index, position in enumerate(collisions[0]):                    
                     diff = Vector2(
                         (self.position[0] - position[0]),
                         (self.position[1] - position[1])
-                    ).normalize() * self.speed
+                    ).normalize() * speed
 
                     position += diff 
                         
@@ -250,6 +256,10 @@ class Shrink(Tool):
                         self.position[1] - position[1]]
                 
                 distance = sqrt(diff[0] ** 2 + diff[1] ** 2)
+
+                if distance == 0:
+                    continue
+
                 if distance < self.radius:
                     positions.append(position)
                     distances.append(distance)
@@ -260,10 +270,13 @@ class Shrink(Tool):
         if event.type == MOUSEBUTTONDOWN:
             if event.button == 1:
                 self.holding = True
+                self.direction = 1
             
-            if event.button == 3:
-                self.speed *= -1
+            if event.button == 3:               
+                self.holding = True
+                self.direction = -1
                 
         if event.type == MOUSEBUTTONUP:
-            if event.button == 1:
+            if event.button == 1 or event.button == 3:
                 self.holding = False
+

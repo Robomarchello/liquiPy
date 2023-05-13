@@ -20,66 +20,83 @@ class ToolBar:
             pygame.image.load('src/assets/tooljam.png')
         )
         self.textRect = self.text.get_rect(bottomright=(955, 605))
+
+        #for file dialogs       
+        self.filetypes = [
+            ('PNG', '*.png'), ('JPEG', '*.jpg *.jpeg'),
+            ('BMP', '*.bmp'), ('TGA', '.tga')
+            ]
+        self.imageFiles = [('Image Files', '*.png *.jpg *.jpeg *.bmp *.webp')]
         
-        save = grid.save
         self.grid = grid
         self.editor = editor
 
+        btnSound = pygame.mixer.Sound('src/assets/click.ogg')
         self.buttons = []
-
         self.buttons.append(
             Button(
             Texture.from_surface(renderer,
                                 pygame.image.load('src/assets/SaveBtn.png')),
-            (10, 545), save)
+            (10, 545), self.SaveImage, btnSound)
         )        
         self.buttons.append(
             Button(
             Texture.from_surface(renderer,
                                 pygame.image.load('src/assets/UploadBtn.png')),
-            (130, 545), self.openFile)
+            (130, 545), self.openFile, btnSound)
         )
         self.buttons.append(
             Button(
             Texture.from_surface(renderer,
                                 pygame.image.load('src/assets/RestartBtn.png')),
-            (250, 545), self.restart)
+            (250, 545), self.restart, btnSound)
         )
         self.buttons.append(
             Button(
             Texture.from_surface(renderer,
                                 pygame.image.load('src/assets/SmudgeBtn.png')),
-            (370, 545), self.smudge)
+            (370, 545), self.smudge, btnSound)
         )
         self.buttons.append(
             Button(
             Texture.from_surface(renderer,
                                 pygame.image.load('src/assets/SwirlBtn.png')),
-            (490, 545), self.swirl)
+            (490, 545), self.swirl, btnSound)
         )
         self.buttons.append(
             Button(
             Texture.from_surface(renderer,
                                 pygame.image.load('src/assets/ShrinkBtn.png')),
-            (610, 545), self.shrink)
+            (610, 545), self.shrink, btnSound)
         )
 
     def openFile(self):
         """Create a Tk file dialog and cleanup when finished"""
-        tk = Tk()
-        tk.withdraw() 
-        file_name = filedialog.askopenfilename(parent=tk)
-        tk.destroy()
+        filePath = filedialog.askopenfilename(
+            filetypes=self.imageFiles
+        )
         
-        if file_name == '':
+        if filePath == '':
             return
 
         self.image = Texture.from_surface(self.renderer, 
-                            pygame.image.load(file_name))
+                            pygame.image.load(filePath))
         imageRect = self.image.get_rect()
         imageRect = imageRect.fit(self.rect)
 
         self.grid.update_image(self.image)
+
+    def SaveImage(self):
+        filePath = filedialog.asksaveasfilename(
+            defaultextension='.png', initialfile='result.png', 
+            filetypes=self.filetypes
+        )
+
+        if filePath == '': 
+            return
+        
+        self.grid.save(filePath)
+
 
     def smudge(self):
         self.editor.toolIndex = 0
@@ -131,6 +148,10 @@ class Editor:
         self.grid.draw(renderer)
 
         tool = self.tools[self.toolIndex]
+        if self.rect.collidepoint(Mouse.position):
+            Mouse.visible = False
+        else:
+            tool.selected = False
         tool.update(self.grid.mesh)
         tool.draw(renderer)
         tool.selected = True

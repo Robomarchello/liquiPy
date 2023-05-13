@@ -38,7 +38,6 @@ class Grid:
     def draw(self, renderer):
         renderer.draw_color = (255, 0, 0, 255)
 
-        #print(self.mesh2d.shape,)
         for y, row in enumerate(self.mesh2d):
             for x, point in enumerate(row):
                 if x < self.cells[0] - 1:
@@ -65,7 +64,7 @@ class Grid:
                 #renderer.draw_point(point)
                         
 
-    def save(self):
+    def save(self, path='saved.png'):
         self.renderer.draw_color = (0, 0, 0, 255)
         self.renderer.clear()
 
@@ -95,7 +94,7 @@ class Grid:
                             )
                         
         surf = self.renderer.to_surface()
-        pygame.image.save(surf, 'saved.png')
+        pygame.image.save(surf, path)
 
     def update_image(self, image):
         self.image = image
