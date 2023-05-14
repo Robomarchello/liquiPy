@@ -13,7 +13,10 @@ class App():
     def __init__(self, ScreenSize, caption, fps):
         self.ScreenSize = ScreenSize
 
+        icon = pygame.image.load('src/assets/icon.png')
+        
         self.window = Window(caption, ScreenSize)
+        self.window.set_icon(icon)
         self.renderer = Renderer(self.window)
 
         self.dummy = Texture.from_surface(
